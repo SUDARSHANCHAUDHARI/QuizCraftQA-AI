@@ -52,6 +52,7 @@ uvicorn app.main:app --reload
 
 API will be available at `http://localhost:8000`
 
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
@@ -59,6 +60,38 @@ API will be available at `http://localhost:8000`
 | GET | `/` | Health check |
 | POST | `/generate` | Generate questions from PDF text |
 | POST | `/study-plan` | Generate a personalised study plan |
+
+## API Usage Examples
+
+### Health Check
+```bash
+curl http://localhost:8000/
+# {"status": "ok", "service": "QuizCraftQA-AI"}
+```
+
+### Generate Questions
+```bash
+curl -X POST http://localhost:8000/generate \
+	-H "Content-Type: application/json" \
+	-d '{
+		"text": "Software testing is a process.",
+		"question_type": "mcq",
+		"count": 2
+	}'
+# {"questions": [...]} 
+```
+
+### Generate Study Plan
+```bash
+curl -X POST http://localhost:8000/study-plan \
+	-H "Content-Type: application/json" \
+	-d '{
+		"text": "Software testing syllabus.",
+		"weeks": 2,
+		"weak_topics": ["unit testing"]
+	}'
+# {"plan": "..."}
+```
 
 ## Connecting to QuizCraftQA
 
