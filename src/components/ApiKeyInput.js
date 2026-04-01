@@ -1,60 +1,30 @@
 import React from "react";
+import { saveApiKey, clearApiKey, getRemember, setRemember } from "../utils/storage.js";
 
 const h = React.createElement;
 
-const SS_KEY = "quizcraftqa_ai_gemini_key";
-const LS_KEY = "quizcraftqa_ai_gemini_key";
-const LS_REMEMBER = "quizcraftqa_ai_remember";
-
-export function loadApiKey() {
-  try {
-    const remember = localStorage.getItem(LS_REMEMBER) === "true";
-    return remember
-      ? localStorage.getItem(LS_KEY) || ""
-      : sessionStorage.getItem(SS_KEY) || "";
-  } catch {
-    return "";
-  }
-}
-
 export default function ApiKeyInput({ apiKey, onSave, onClear }) {
   const [draft, setDraft] = React.useState(apiKey || "");
-  const [remember, setRemember] = React.useState(() => {
-    try { return localStorage.getItem(LS_REMEMBER) === "true"; } catch { return false; }
-  });
+  const [remember, setRememberState] = React.useState(() => getRemember());
   const [saved, setSaved] = React.useState(!!apiKey);
 
   function handleSave() {
     if (!draft.trim()) return;
-    try {
-      if (remember) {
-        localStorage.setItem(LS_KEY, draft.trim());
-        localStorage.setItem(LS_REMEMBER, "true");
-        sessionStorage.removeItem(SS_KEY);
-      } else {
-        sessionStorage.setItem(SS_KEY, draft.trim());
-        localStorage.removeItem(LS_KEY);
-        localStorage.setItem(LS_REMEMBER, "false");
-      }
-    } catch {}
+    saveApiKey(draft.trim(), remember);
     setSaved(true);
     onSave(draft.trim());
   }
 
   function handleClear() {
-    try {
-      localStorage.removeItem(LS_KEY);
-      localStorage.removeItem(LS_REMEMBER);
-      sessionStorage.removeItem(SS_KEY);
-    } catch {}
+    clearApiKey();
     setDraft("");
     setSaved(false);
     onClear();
   }
 
   function toggleRemember(val) {
+    setRememberState(val);
     setRemember(val);
-    try { localStorage.setItem(LS_REMEMBER, String(val)); } catch {}
   }
 
   return h(
@@ -67,10 +37,7 @@ export default function ApiKeyInput({ apiKey, onSave, onClear }) {
 
     h(
       "div",
-      {
-        className:
-          "rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-4",
-      },
+      { className: "rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-4" },
       h("p", { className: "text-sm font-semibold text-slate-700" }, "Gemini API Key"),
       h(
         "p",

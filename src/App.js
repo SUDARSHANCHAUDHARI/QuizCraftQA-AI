@@ -1,5 +1,6 @@
 import React from "react";
-import ApiKeyInput, { loadApiKey } from "./components/ApiKeyInput.js";
+import ApiKeyInput from "./components/ApiKeyInput.js";
+import { loadApiKey } from "./utils/storage.js";
 import GenerateQuestions from "./components/GenerateQuestions.js";
 import StudyPlan from "./components/StudyPlan.js";
 
