@@ -20,7 +20,24 @@ async function callGemini(apiKey, prompt) {
   }
 
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!text) throw new Error("Gemini returned an empty response. Please try again.");
+  return text;
+}
+
+function extractJson(raw) {
+  const cleaned = raw.replace(/^```json\s*|^```\s*|```\s*$/gm, "").trim();
+  // Try direct parse first
+  try { return JSON.parse(cleaned); } catch {}
+  // Try finding first JSON array
+  const start = cleaned.indexOf("[");
+  const end = cleaned.lastIndexOf("]");
+  if (start !== -1 && end !== -1) {
+    try { return JSON.parse(cleaned.slice(start, end + 1)); } catch {}
+  }
+  throw new Error(
+    "Could not parse Gemini response as JSON. Try again — the model occasionally returns unexpected formatting."
+  );
 }
 
 export async function generateQuestions(apiKey, text, questionType, count) {
@@ -42,8 +59,7 @@ Syllabus text:
 ${text.slice(0, 3000)}`;
 
   const raw = await callGemini(apiKey, prompt);
-  const cleaned = raw.replace(/^```json|^```|```$/gm, "").trim();
-  return JSON.parse(cleaned);
+  return extractJson(raw);
 }
 
 export async function generateStudyPlan(apiKey, text, weeks, weakTopics) {

@@ -85,6 +85,33 @@ function QuestionCard({ q, index }) {
   );
 }
 
+function exportQuestions(questions, format) {
+  let content, mime, filename;
+  if (format === "json") {
+    content = JSON.stringify(questions, null, 2);
+    mime = "application/json";
+    filename = "questions.json";
+  } else {
+    const rows = questions.map((q) => [
+      `"${(q.prompt || "").replace(/"/g, '""')}"`,
+      `"${(q.type || "").replace(/"/g, '""')}"`,
+      `"${(q.correctAnswer || "").replace(/"/g, '""')}"`,
+      `"${(q.explanation || "").replace(/"/g, '""')}"`,
+      q.difficulty || "",
+    ]);
+    content = ["Prompt,Type,Answer,Explanation,Difficulty", ...rows.map((r) => r.join(","))].join("\n");
+    mime = "text/csv";
+    filename = "questions.csv";
+  }
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function GenerateQuestions({ apiKey }) {
   const [text, setText] = React.useState("");
   const [questionType, setQuestionType] = React.useState("mixed");
@@ -189,8 +216,18 @@ export default function GenerateQuestions({ apiKey }) {
     error &&
       h(
         "div",
-        { className: "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600" },
-        error
+        { className: "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 flex items-center justify-between gap-4" },
+        h("p", { className: "text-sm text-red-600" }, error),
+        h(
+          "button",
+          {
+            type: "button",
+            onClick: handleGenerate,
+            className:
+              "inline-flex items-center rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 shrink-0",
+          },
+          "Retry"
+        )
       ),
 
     questions.length > 0 &&
@@ -201,9 +238,37 @@ export default function GenerateQuestions({ apiKey }) {
             "space-y-4 rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-lg backdrop-blur",
         },
         h(
-          "p",
-          { className: "text-sm font-semibold text-slate-700" },
-          `${questions.length} question${questions.length !== 1 ? "s" : ""} generated`
+          "div",
+          { className: "flex items-center justify-between flex-wrap gap-3" },
+          h(
+            "p",
+            { className: "text-sm font-semibold text-slate-700" },
+            `${questions.length} question${questions.length !== 1 ? "s" : ""} generated`
+          ),
+          h(
+            "div",
+            { className: "flex items-center gap-2" },
+            h(
+              "button",
+              {
+                type: "button",
+                onClick: () => exportQuestions(questions, "json"),
+                className:
+                  "inline-flex items-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90",
+              },
+              "Export JSON"
+            ),
+            h(
+              "button",
+              {
+                type: "button",
+                onClick: () => exportQuestions(questions, "csv"),
+                className:
+                  "inline-flex items-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90",
+              },
+              "Export CSV"
+            )
+          )
         ),
         questions.map((q, i) => h(QuestionCard, { key: i, q, index: i }))
       )

@@ -1,108 +1,50 @@
-# QuizCraftQA-AI
+# QuizCraftQA AI
 
-Gemini API backend for [QuizCraftQA](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA) — generates high-quality ISTQB exam questions from PDF text using Google Gemini.
+[![CI](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA-AI/actions/workflows/ci.yml)
+[![Deploy](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA-AI/actions/workflows/deploy.yml/badge.svg)](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA-AI/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-green)](https://sudarshanchaudhari.github.io/QuizCraftQA-AI/)
+
+AI-powered ISTQB question and study plan generator. Paste syllabus text, enter your Gemini API key, and generate exam-ready questions or a week-by-week study plan — all in the browser, no backend needed.
 
 ## Features
 
-- Generate Multiple Choice, True/False, and Fill-in-the-Blank questions
-- Bloom's taxonomy difficulty scoring
-- Detailed explanations for each answer
-- REST API compatible with QuizCraftQA's `VITE_AI_STUDY_ENDPOINT`
-
-## Tech Stack
-
-- Python 3.11+
-- FastAPI
-- Google Gemini API (`google-generativeai`)
+- Generate MCQ, True/False, and Fill-in-the-Blank questions from any ISTQB syllabus text
+- Generate a personalised week-by-week study plan with weak topic focus
+- Export generated questions as JSON or CSV
+- Gemini API key stored in your browser only — never sent to any server
+- Static app — deploys to GitHub Pages
 
 ## Quick Start
 
-### 1. Clone the repo
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. Go to **Settings**, enter your Gemini API key, then use **Generate Questions** or **Study Plan**.
+
+## Getting a Gemini API Key
+
+1. Go to [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+2. Create a free API key
+3. Paste it into the Settings tab
+
+## Build for Production
 
 ```bash
-git clone https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA-AI.git
-cd QuizCraftQA-AI
+npm run build
+npm run preview
 ```
 
-### 2. Create virtual environment
+## Tech Stack
 
-```bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Set up environment variables
-
-```bash
-cp .env.example .env
-# Add your Gemini API key to .env
-```
-
-### 5. Run the server
-
-```bash
-uvicorn app.main:app --reload
-```
-
-API will be available at `http://localhost:8000`
-
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Health check |
-| POST | `/generate` | Generate questions from PDF text |
-| POST | `/study-plan` | Generate a personalised study plan |
-
-## API Usage Examples
-
-### Health Check
-```bash
-curl http://localhost:8000/
-# {"status": "ok", "service": "QuizCraftQA-AI"}
-```
-
-### Generate Questions
-```bash
-curl -X POST http://localhost:8000/generate \
-	-H "Content-Type: application/json" \
-	-d '{
-		"text": "Software testing is a process.",
-		"question_type": "mcq",
-		"count": 2
-	}'
-# {"questions": [...]} 
-```
-
-### Generate Study Plan
-```bash
-curl -X POST http://localhost:8000/study-plan \
-	-H "Content-Type: application/json" \
-	-d '{
-		"text": "Software testing syllabus.",
-		"weeks": 2,
-		"weak_topics": ["unit testing"]
-	}'
-# {"plan": "..."}
-```
-
-## Connecting to QuizCraftQA
-
-In your QuizCraftQA `.env`:
-
-```
-VITE_AI_STUDY_ENDPOINT=http://localhost:8000/generate
-VITE_AI_VARIANT_ENDPOINT=http://localhost:8000/generate
-```
+- React 19 (no build-time JSX — uses `React.createElement`)
+- Vite 4
+- Tailwind CSS 3
+- Gemini API (`gemini-1.5-flash`) via direct browser fetch
 
 ## Related Projects
 
-- [QuizCraftQA](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA) — Main web app
-- [QuizCraftQA-NotebookLM](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA-NotebookLM) — Manual NotebookLM workflow
+- [QuizCraftQA](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA) — Main ISTQB quiz web app
+- [QuizCraftQA-NotebookLM](https://github.com/SUDARSHANCHAUDHARI/QuizCraftQA-NotebookLM) — NotebookLM prompt templates
